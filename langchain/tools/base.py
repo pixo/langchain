@@ -422,15 +422,7 @@ class Tool(BaseTool):
 
     def _to_args_and_kwargs(self, tool_input: Union[str, Dict]) -> Tuple[Tuple, Dict]:
         """Convert tool input to pydantic model."""
-        args, kwargs = super()._to_args_and_kwargs(tool_input)
-        # For backwards compatibility. The tool must be run with a single input
-        all_args = list(args) + list(kwargs.values())
-        if len(all_args) != 1:
-            raise ToolException(
-                f"Too many arguments to single-input tool {self.name}."
-                f" Args: {all_args}"
-            )
-        return tuple(all_args), {}
+        return tuple([tool_input]), {}
 
     def _run(
         self,

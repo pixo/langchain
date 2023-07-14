@@ -48,6 +48,7 @@ class MessagesPlaceholder(BaseMessagePromptTemplate):
         """To a BaseMessage."""
         value = kwargs[self.variable_name]
         if not isinstance(value, list):
+            value = kwargs[self.variable_name]  # TODO: To remove here only to debug
             raise ValueError(
                 f"variable {self.variable_name} should be a list of base messages, "
                 f"got {value}"

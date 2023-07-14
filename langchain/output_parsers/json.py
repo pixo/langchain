@@ -7,6 +7,11 @@ from typing import Any, List
 
 from langchain.schema import BaseOutputParser, OutputParserException
 
+def is_json(text: str) -> bool:
+    try:
+        return json.loads(text)
+    except JSONDecodeError:
+        return False
 
 def parse_json_markdown(json_string: str) -> dict:
     """
@@ -18,12 +23,17 @@ def parse_json_markdown(json_string: str) -> dict:
     Returns:
         The parsed JSON object as a Python dictionary.
     """
+    json_loaded = is_json(json_string)
+    if json_loaded:
+        return json_loaded
+
     # Try to find JSON string within triple backticks
     match = re.search(r"```(json)?(.*?)```", json_string, re.DOTALL)
 
     # If no match found, assume the entire string is a JSON string
     if match is None:
-        json_str = json_string
+        return {"action": "Final Answer", "action_input": json_string}
+        # json_str = json_string
     else:
         # If match found, use the content within the backticks
         json_str = match.group(2)
