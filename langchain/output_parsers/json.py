@@ -7,11 +7,30 @@ from typing import Any, List
 
 from langchain.schema import BaseOutputParser, OutputParserException
 
-def is_json(text: str) -> bool:
+
+def is_json(json_string: str) -> bool:
+    """
+    Check if a string is a valid JSON string.
+
+    Args:
+        json_string: The string to check.
+
+    Returns:
+        True if the string is a valid JSON string, False otherwise.
+    """
     try:
-        return json.loads(text)
-    except JSONDecodeError:
+        json_string = json.loads(json_string)
+        return json_string
+    except json.JSONDecodeError:
         return False
+
+
+def extract_json(text):
+    pattern = f'```json(.*?)```'
+    matches = re.findall(pattern, text, re.DOTALL)
+    matches = matches[0] if matches else None
+    return matches
+
 
 def parse_json_markdown(json_string: str) -> dict:
     """
@@ -27,16 +46,11 @@ def parse_json_markdown(json_string: str) -> dict:
     if json_loaded:
         return json_loaded
 
-    # Try to find JSON string within triple backticks
-    match = re.search(r"```(json)?(.*?)```", json_string, re.DOTALL)
-
-    # If no match found, assume the entire string is a JSON string
+    match = extract_json(json_string)
     if match is None:
-        return {"action": "Final Answer", "action_input": json_string}
-        # json_str = json_string
+        return {'action': 'Final Answer', 'action_input': json_string}
     else:
-        # If match found, use the content within the backticks
-        json_str = match.group(2)
+        json_str = match
 
     # Strip whitespace and newlines from the start and end
     json_str = json_str.strip()
